@@ -1,0 +1,5 @@
+FROM python:3.13
+
+RUN pip install mlflow
+
+RUN mlflow --default-backend-uri s3://bucket//

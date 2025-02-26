@@ -1,0 +1,7 @@
+apiVersion: storage.k8s.io/v1beta1
+kind: VolumeAttributesClass
+metadata:
+  name: auto-ebs-attribute-class
+driverName: ebs.csi.aws.com
+parameters:
+  tagSpecification_1: "auto-delete=no"

@@ -1,0 +1,19 @@
+apiVersion: networking.k8s.io/v1
+kind: IngressClass
+metadata:
+  name: mlops-ingress-class
+spec:
+  controller: eks.amazonaws.com/alb
+  parameters:
+    apiGroup: eks.amazonaws.com
+    kind: IngressClassParams
+    # Use the name of the IngressClassParams set in the previous step
+    name: mlops-ingress-class-params
+---
+apiVersion: eks.amazonaws.com/v1
+kind: IngressClassParams
+metadata:
+  name: mlops-ingress-class-params
+spec:
+  group:
+    name: mlops

@@ -1,0 +1,20 @@
+# apiVersion: olm.operatorframework.io/v1
+# kind: ClusterCatalog
+# metadata:
+#   name: <catalog_name>
+# spec:
+#   source:
+#     type: Image
+#     image:
+#       ref: <catalog_image>
+#       pollIntervalMinutes: <poll_interval_duration>
+apiVersion: olm.operatorframework.io/v1
+kind: ClusterCatalog
+metadata:
+  name: opendatahub-operator
+spec:
+  source:
+    type: Image
+    image:
+      ref: quay.io/opendatahub/opendatahub-operator:latest
+      pollIntervalMinutes: 10
