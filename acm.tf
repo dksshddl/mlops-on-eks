@@ -1,22 +1,13 @@
 # https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/acm_certificate_validation
-locals {
-  domain_lists = ["*"]
-}
 
-resource "aws_acm_certificate" "acm" {
-  count = length(local.domain_lists)
-  domain_name       = "${local.domain_lists[count.index]}.${var.domain_name}"
+resource "aws_acm_certificate" "all_domain_acm" {
+  domain_name       = "*.${var.domain_name}"
   validation_method = "DNS"
 }
 
-data "aws_route53_zone" "zone" {
-  name         = var.domain_name
-  private_zone = false
-}
-
-resource "aws_route53_record" "recored" {
+resource "aws_route53_record" "record" {
   for_each = {
-    for dvo in aws_acm_certificate.acm.domain_validation_options : dvo.domain_name => {
+    for dvo in aws_acm_certificate.all_domain_acm.domain_validation_options : dvo.domain_name => {
       name   = dvo.resource_record_name
       record = dvo.resource_record_value
       type   = dvo.resource_record_type
@@ -32,6 +23,6 @@ resource "aws_route53_record" "recored" {
 }
 
 resource "aws_acm_certificate_validation" "example" {
-  certificate_arn         = aws_acm_certificate.acm.arn
+  certificate_arn         = aws_acm_certificate.all_domain_acm.arn
   validation_record_fqdns = [for record in aws_route53_record.record : record.fqdn]
 }

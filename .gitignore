@@ -115,3 +115,7 @@ ENV/
 env/
 # acm arn
 replace_acm_arn.sh
+
+**/**/*_real*
+
+

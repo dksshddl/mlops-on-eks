@@ -419,8 +419,8 @@ singleuser:
       storageAccessModes: [ReadWriteOnce]
       subPath:
   image:
-    name: elyra/elyra # quay.io/jupyterhub/k8s-singleuser-sample
-    tag: "dev"
+    name: quay.io/jupyterhub/k8s-singleuser-sample # 013596862746.dkr.ecr.ap-northeast-2.amazonaws.com/custom-jupyter
+    tag: "4.1.0" # latest
     pullPolicy: Always
     pullSecrets: []
   startTimeout: 300

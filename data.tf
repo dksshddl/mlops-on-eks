@@ -55,3 +55,12 @@ data "aws_subnets" "isolated" {
     values = ["isolated"]  # Replace with your tag value
   }
 }
+
+data "aws_route53_zone" "zone" {
+  name         = var.domain_name
+  private_zone = false
+}
+
+data "aws_lb" "lb" {
+  arn  = var.alb_arn
+}
