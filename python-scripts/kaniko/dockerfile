@@ -1,0 +1,28 @@
+# building custom runtime image for elyra
+# refer to https://elyra.readthedocs.io/en/latest/recipes/creating-a-custom-runtime-image.html
+
+FROM gcr.io/kaniko-project/executor:latest as kaniko
+
+FROM python:3.10-slim
+
+# 필요한 디렉토리 생성
+RUN mkdir -p /kaniko/.docker
+
+# kaniko 실행파일 복사
+COPY --from=kaniko /kaniko/executor /kaniko/executor
+COPY --from=kaniko /kaniko/ssl/certs/ca-certificates.crt /kaniko/ssl/certs/ca-certificates.crt
+
+COPY requirements.txt .
+
+# 필요한 Python 패키지 설치
+RUN pip install -r requirements.txt
+
+# 작업 디렉토리 설정
+WORKDIR /workspace
+
+# 실행 권한 설정
+RUN chmod +x /kaniko/executor
+
+# 환경 변수 설정
+ENV PATH="/kaniko:${PATH}" \
+    SSL_CERT_DIR="/kaniko/ssl/certs"
