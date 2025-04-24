@@ -1,10 +1,10 @@
 annotations:
   artifacthub.io/changes: |
-    - Update burakince/mlflow image version to 2.20.1
+    - Update burakince/mlflow image version to 2.21.2
   artifacthub.io/containsSecurityUpdates: "false"
   artifacthub.io/images: |
     - name: mlflow
-      image: burakince/mlflow:2.20.1
+      image: burakince/mlflow:2.21.2
   artifacthub.io/license: MIT
   artifacthub.io/links: |
     - name: Chart Source
@@ -18,28 +18,39 @@ annotations:
   artifacthub.io/prerelease: "false"
   artifacthub.io/screenshots: |
     - title: Quickstart UI screenshot
-      url: https://raw.githubusercontent.com/mlflow/mlflow/master/docs/source/_static/images/quickstart-ui-screenshot.png
+      url: https://raw.githubusercontent.com/mlflow/mlflow/refs/heads/master/docs/static/images/quickstart/quickstart_ui_screenshot.png
     - title: OSS registry 1 register
-      url: https://raw.githubusercontent.com/mlflow/mlflow/master/docs/source/_static/images/oss_registry_1_register.png
+      url: https://raw.githubusercontent.com/mlflow/mlflow/refs/heads/master/docs/static/images/oss_registry_1_register.png
     - title: OSS Registry 2 dialog
-      url: https://raw.githubusercontent.com/mlflow/mlflow/master/docs/source/_static/images/oss_registry_2_dialog.png
+      url: https://raw.githubusercontent.com/mlflow/mlflow/refs/heads/master/docs/static/images/oss_registry_2_dialog.png
     - title: OSS Registry 3 overview
-      url: https://raw.githubusercontent.com/mlflow/mlflow/master/docs/source/_static/images/oss_registry_3_overview.png
+      url: https://raw.githubusercontent.com/mlflow/mlflow/refs/heads/master/docs/static/images/oss_registry_3_overview.png
     - title: OSS Registry 3b version
-      url: https://raw.githubusercontent.com/mlflow/mlflow/master/docs/source/_static/images/oss_registry_3b_version.png
-    - title: OSS Registry 3c version
-      url: https://raw.githubusercontent.com/mlflow/mlflow/master/docs/source/_static/images/oss_registry_3c_version.png
+      url: https://raw.githubusercontent.com/mlflow/mlflow/refs/heads/master/docs/static/images/oss_registry_3b_version.png
     - title: OSS Registry 4 version
-      url: https://raw.githubusercontent.com/mlflow/mlflow/master/docs/source/_static/images/oss_registry_4_version.png
+      url: https://raw.githubusercontent.com/mlflow/mlflow/refs/heads/master/docs/static/images/oss_registry_4_model.png
+    - title: OSS Registry 4b version
+      url: https://raw.githubusercontent.com/mlflow/mlflow/refs/heads/master/docs/static/images/oss_registry_4b_model_alias.png
     - title: OSS Registry 5 transition
-      url: https://raw.githubusercontent.com/mlflow/mlflow/master/docs/source/_static/images/oss_registry_5_transition.png
+      url: https://raw.githubusercontent.com/mlflow/mlflow/refs/heads/master/docs/static/images/oss_registry_5_version.png
+    - title: OSS Registry 6 transition
+      url: https://raw.githubusercontent.com/mlflow/mlflow/refs/heads/master/docs/static/images/oss_registry_6_version.png
     - title: Experiment compare
-      url: https://raw.githubusercontent.com/mlflow/mlflow/master/docs/source/_static/images/tutorial-compare.png
+      url: https://raw.githubusercontent.com/mlflow/mlflow/refs/heads/master/docs/static/images/tutorial-compare.png
   artifacthub.io/signKey: |
     fingerprint: 939B1A0ED8AAA8E722ACCDB3B6A012EE8A76426A
     url: https://keybase.io/communitycharts/pgp_keys.asc
 apiVersion: v2
-appVersion: 2.20.1
+appVersion: 2.21.2
+dependencies:
+- condition: postgresql.enabled
+  name: postgresql
+  repository: https://charts.bitnami.com/bitnami
+  version: 16.5.6
+- condition: mysql.enabled
+  name: mysql
+  repository: https://charts.bitnami.com/bitnami
+  version: 12.3.2
 description: A Helm chart for Mlflow open source platform for the machine learning
   lifecycle
 home: https://mlflow.org
@@ -66,4 +77,4 @@ sources:
 - https://github.com/burakince/mlflow
 - https://github.com/mlflow/mlflow
 type: application
-version: 0.12.3
+version: 0.16.3

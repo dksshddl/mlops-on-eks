@@ -4,7 +4,7 @@
 
 A Helm chart for Mlflow open source platform for the machine learning lifecycle
 
-![Version: 0.12.3](https://img.shields.io/badge/Version-0.12.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.20.1](https://img.shields.io/badge/AppVersion-2.20.1-informational?style=flat-square)
+![Version: 0.16.3](https://img.shields.io/badge/Version-0.16.3-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 2.21.2](https://img.shields.io/badge/AppVersion-2.21.2-informational?style=flat-square)
 
 ## Get Helm Repository Info
 
@@ -58,6 +58,31 @@ backendStore:
     password: "Pa33w0rd!"
 ```
 
+## Postgres Database with Existing Database Secret Example
+
+```yaml
+backendStore:
+  postgres:
+    enabled: true
+    host: "postgresql-instance1.cg034hpkmmjt.eu-central-1.rds.amazonaws.com"
+    port: 5432
+    database: "mlflow"
+
+  existingDatabaseSecret:
+    name: "postgres-database-secret"
+    usernameKey: "username"
+    passwordKey: "password"
+```
+
+## Bitnami's Postgres Database Migration Values Files Example
+
+```yaml
+backendStore:
+  databaseMigration: true
+postgres:
+  enabled: true
+```
+
 ## MySQL Database Migration Values Files Example
 
 ```yaml
@@ -70,6 +95,31 @@ backendStore:
     database: "mlflow"
     user: "mlflowuser"
     password: "Pa33w0rd!"
+```
+
+## MySQL Database with Existing Database Secret Example
+
+```yaml
+backendStore:
+  mysql:
+    enabled: true
+    host: "mysql-instance1.cg034hpkmmjt.eu-central-1.rds.amazonaws.com"
+    port: 3306
+    database: "mlflow"
+
+  existingDatabaseSecret:
+    name: "mysql-database-secret"
+    usernameKey: "username"
+    passwordKey: "password"
+```
+
+## Bitnami's MySQL Database Migration Values Files Example
+
+```yaml
+backendStore:
+  databaseMigration: true
+mysql:
+  enabled: true
 ```
 
 ## Postgres Database Connection Check Values Files Example
@@ -86,6 +136,15 @@ backendStore:
     password: "Pa33w0rd!"
 ```
 
+## Bitnami's Postgres Database Connection Check Values Files Example
+
+```yaml
+backendStore:
+  databaseConnectionCheck: true
+postgres:
+  enabled: true
+```
+
 ## MySQL Database Connection Check Values Files Example
 
 ```yaml
@@ -98,6 +157,15 @@ backendStore:
     database: "mlflow"
     user: "mlflowuser"
     password: "Pa33w0rd!"
+```
+
+## Bitnami's MySQL Database Connection Check Values Files Example
+
+```yaml
+backendStore:
+  databaseConnectionCheck: true
+mysql:
+  enabled: true
 ```
 
 ## AWS Installation Examples
@@ -163,8 +231,8 @@ artifactRoot:
   s3:
     enabled: true
     bucket: "my-mlflow-artifact-root-backend"
-    awsAccessKeyId: <AWS_ACCESS>
-    awsSecretAccessKey: <AWS_SECRET_ACCESS>
+    awsAccessKeyId: "a1b2c3d4"
+    awsSecretAccessKey: "a1b2c3d4"
 ```
 
 ## S3 Access with AWS EKS Role ARN Values Files Example
@@ -213,10 +281,12 @@ artifactRoot:
     enabled: true
     container: "mlflow"
     storageAccount: "mystorageaccount"
-    accessKey: <ACCESS_KEY>
+    accessKey: "Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw=="
 ```
 
 ## Authentication Example
+
+> **Tip**: auth and ldapAuth can not be enabled at same time!
 
 ```yaml
 auth:
@@ -241,9 +311,169 @@ auth:
     password: "A4m1nPa33w0rd!"
 ```
 
+## Basic Authentication with LDAP Backend
+
+> **Tip**: auth and ldapAuth can not be enabled at same time!
+
+```yaml
+ldapAuth:
+  enabled: true
+  uri: "ldap://lldap:3890/dc=mlflow,dc=test"
+  tlsVerification: required
+  lookupBind: "uid=%s,ou=people,dc=mlflow,dc=test"
+  groupAttribute: "dn"
+  searchBaseDistinguishedName: "ou=groups,dc=mlflow,dc=test"
+  searchFilter: "(&(objectclass=groupOfUniqueNames)(uniquemember=%s))"
+  adminGroupDistinguishedName: "cn=test-admin,ou=groups,dc=mlflow,dc=test"
+  userGroupDistinguishedName: "cn=test-user,ou=groups,dc=mlflow,dc=test"
+```
+
+## Basic Authentication with LDAP Backend and self-signed CA certificate
+
+If you use self-signed certificate for your LDAP server, you can pass your self-signed CA certificate from `encodedTrustedCACertificate` variable by encoding it.
+
+```yaml
+ldapAuth:
+  enabled: true
+  uri: "ldap://lldap:3890/dc=mlflow,dc=test"
+  tlsVerification: required
+  lookupBind: "uid=%s,ou=people,dc=mlflow,dc=test"
+  groupAttribute: "dn"
+  searchBaseDistinguishedName: "ou=groups,dc=mlflow,dc=test"
+  searchFilter: "(&(objectclass=groupOfUniqueNames)(uniquemember=%s))"
+  adminGroupDistinguishedName: "cn=test-admin,ou=groups,dc=mlflow,dc=test"
+  userGroupDistinguishedName: "cn=test-user,ou=groups,dc=mlflow,dc=test"
+  encodedTrustedCACertificate: "LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURoRENDQW15Z0F3SUJBZ0lSQUx1a3VyZnlCMFF0Z1FtbnphZDlMNWN3RFFZSktvWklodmNOQVFFTEJRQXcKU3pFZ01CNEdBMVVFQXd3WFRVeEdiRzkzSUV4RVFWQXRVMU5NTFZSbGMzUWdRMEV4RHpBTkJnTlZCQW9NQmsxTQpSbXh2ZHpFV01CUUdBMVVFQ3d3TlRFUkJVQzFUVTB3dFZHVnpkREFlRncweU5UQXpNRE14TnpJMU1qVmFGdzB5Ck5UQXpNRFF4TnpJMU1qVmFNRXN4SURBZUJnTlZCQU1NRjAxTVJteHZkeUJNUkVGUUxWTlRUQzFVWlhOMElFTkIKTVE4d0RRWURWUVFLREFaTlRFWnNiM2N4RmpBVUJnTlZCQXNNRFV4RVFWQXRVMU5NTFZSbGMzUXdnZ0VpTUEwRwpDU3FHU0liM0RRRUJBUVVBQTRJQkR3QXdnZ0VLQW9JQkFRRHNBNDc1NkRrZlVXRThZZjRHN0Z4ZFJkL0pnNXNkCjRJUVp1K3ZQcDRMTm5uM3E5VWlZeUtHZkVFRDJTMnRvYUVTS1VNakJyYWVRd3crUDV0dDVHcjNMQ3JQUmpjZTUKQ2xuMEh3NE5pRGJ5bkhWcDkxWXRjdHJObWtGMFRGdUYxNVE5OUMyR1lpbmNYUW93THduMWZXN2pTZjFuU3N1Kwpvek0veHFUa2FyQndtcVFkYTRlcW56cG5Xa2ZqL2ZHQTNVcnpwMHV6ZG1ZdnNhcmtiTkt0aGZSWTJ4UDhQZGc0Cm15dDJ6SmlycjN2MEo1OFNHeFN6ZWlab0tYUTNtTW5hRDZGTUVTcEg5THUydDVTRUVPZjlubFJLS2l4UzF0aWMKVHJUMDkzUVNKcWNRRkMyNTNwWmF1ZkpQNWR2SlVIR0NvcHFzVU5xc0Jkd2Ivd1grNnJFQm5YYUJBZ01CQUFHagpZekJoTUE4R0ExVWRFd0VCL3dRRk1BTUJBZjh3RGdZRFZSMFBBUUgvQkFRREFnRUdNQjBHQTFVZERnUVdCQlJsCnZVRmphb0c5NU1sWmxBSUs2SDRsaVlvMUNqQWZCZ05WSFNNRUdEQVdnQlJsdlVGamFvRzk1TWxabEFJSzZINGwKaVlvMUNqQU5CZ2txaGtpRzl3MEJBUXNGQUFPQ0FRRUFCNy96YWtlOHB6QWF3eHhvUW5mV3N1MkpSNWhyZkpjcQpjdCt1UEVnSWdnc3lFSmRGbndvbSt2UUV3a3NnT2tEYk10UGZnWTdRUVdUeHo4d1pQOXJDZVZaVUJ0T1FrdytKCjZCR2NLc1gwVnl5bUx5a1VOWUF5U2pEUE1Ma0NES2ZsRyt2eWFPWTZQbFdkZVJJTTVRMVZRL1B1SmQrbCtobEgKd2dFbU1RK2VjeVB2Wkhnd0t3cE41Zzh3YzI3bjI3RURqS29wUHpFMXpzRFN0MjFwUnMvcUdnZXZ6QTl2RlB5eAprWXdXdWJkblQ5NkwyTUUrVjcwTmJzbWt5ekl2T2NzajBlRnE0Z2EyNUQxQ2FhLzlyUnVOSlhwanYyQndYUm1tClNDNnBIV1dRWnh3NDRLQnJCM09EM1hLS25rMU94RFBDUzVwMzN2SHo4ZEZOMHNzb3EwV1VPUT09Ci0tLS0tRU5EIENFUlRJRklDQVRFLS0tLS0K"
+```
+
+Or if you already stored your self-signed CA certifica in an external secret, you can pass secret name from `externalSecretForTrustedCACertificate` variable. The secret must keep CA certificate with `ca.crt` key.
+
+```yaml
+ldapAuth:
+  enabled: true
+  uri: "ldap://lldap:3890/dc=mlflow,dc=test"
+  tlsVerification: required
+  lookupBind: "uid=%s,ou=people,dc=mlflow,dc=test"
+  groupAttribute: "dn"
+  searchBaseDistinguishedName: "ou=groups,dc=mlflow,dc=test"
+  searchFilter: "(&(objectclass=groupOfUniqueNames)(uniquemember=%s))"
+  adminGroupDistinguishedName: "cn=test-admin,ou=groups,dc=mlflow,dc=test"
+  userGroupDistinguishedName: "cn=test-user,ou=groups,dc=mlflow,dc=test"
+  externalSecretForTrustedCACertificate: "external-ca-certificate-secret"
+```
+
+## Auto Scaling Example
+
+This Helm chart supports Horizontal Pod Autoscaling (HPA) to dynamically scale the MLflow `Deployment` based on metrics. The HPA resource is created when `autoscaling.enabled` is `true` and specific conditions are met (see Prerequisites).
+
+### Prerequisites
+
+The HPA is created only if:
+
+- `autoscaling.enabled: true`
+- A backend store is enabled (`backendStore.postgres.enabled` or `backendStore.mysql.enabled`).
+- An artifact store is enabled (`artifactRoot.azureBlob.enabled`, `artifactRoot.s3.enabled`, or `artifactRoot.gcs.enabled`).
+- Auth is either enabled with Postgres (`auth.enabled` and `auth.postgres.enabled`) or disabled (`auth.enabled: false`).
+
+A metrics source (e.g., Metrics Server) is required for scaling.
+
+### Example 1: Basic CPU Scaling
+
+Scale between 1 and 5 replicas based on CPU usage:
+
+```yaml
+autoscaling:
+  enabled: true
+  minReplicas: 1
+  maxReplicas: 5
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 80
+
+backendStore:
+  postgres:
+    enabled: true
+    host: "postgresql-instance1.cg034hpkmmjt.eu-central-1.rds.amazonaws.com"
+    port: 5432
+    database: "mlflow"
+    user: "mlflowuser"
+    password: "Pa33w0rd!"
+
+artifactRoot:
+  s3:
+    enabled: true
+    bucket: "my-mlflow-artifact-root-backend"
+    awsAccessKeyId: "a1b2c3d4"
+    awsSecretAccessKey: "a1b2c3d4"
+```
+
+### Example 2: Custom Scaling Behavior
+
+Scale with custom behavior (1.18+):
+
+```yaml
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+  behavior:
+    scaleUp:
+      stabilizationWindowSeconds: 30
+      policies:
+        - type: Percent
+          value: 100
+          periodSeconds: 60
+    scaleDown:
+      stabilizationWindowSeconds: 300
+
+backendStore:
+  postgres:
+    enabled: true
+    host: "postgresql-instance1.cg034hpkmmjt.eu-central-1.rds.amazonaws.com"
+    port: 5432
+    database: "mlflow"
+    user: "mlflowuser"
+    password: "Pa33w0rd!"
+
+artifactRoot:
+  s3:
+    enabled: true
+    bucket: "my-mlflow-artifact-root-backend"
+    awsAccessKeyId: "a1b2c3d4"
+    awsSecretAccessKey: "a1b2c3d4"
+
+auth:
+  enabled: true
+  adminUsername: "admin"
+  adminPassword: "S3cr3+"
+  postgres:
+    enabled: true
+    host: "postgresql--auth-instance1.abcdef1234.eu-central-1.rds.amazonaws.com"
+    port: 5432
+    database: "auth"
+    user: "mlflowauth"
+    password: "A4m1nPa33w0rd!"
+```
+
 ## Requirements
 
 Kubernetes: `>=1.16.0-0`
+
+| Repository | Name | Version |
+|------------|------|---------|
+| https://charts.bitnami.com/bitnami | mysql | 12.3.2 |
+| https://charts.bitnami.com/bitnami | postgresql | 16.5.6 |
 
 ## Uninstall Helm Chart
 
@@ -266,16 +496,19 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | Key | Type | Default | Description |
 |-----|------|---------|-------------|
 | affinity | object | `{}` | For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#affinity-and-anti-affinity |
+| artifactRoot.azureBlob | object | `{"accessKey":"","connectionString":"","container":"","enabled":false,"path":"","storageAccount":""}` | Specifies if you want to use Azure Blob Storage Mlflow Artifact Root |
 | artifactRoot.azureBlob.accessKey | string | `""` | Azure Cloud Storage Account Access Key for the container |
 | artifactRoot.azureBlob.connectionString | string | `""` | Azure Cloud Connection String for the container. Only onnectionString or accessKey required |
 | artifactRoot.azureBlob.container | string | `""` | Azure blob container name |
 | artifactRoot.azureBlob.enabled | bool | `false` | Specifies if you want to use Azure Blob Storage Mlflow Artifact Root |
-| artifactRoot.azureBlob.path | string | `""` | Azure blobk container folder. If you want to use root level, please don't set anything. |
+| artifactRoot.azureBlob.path | string | `""` | Azure blob container folder. If you want to use root level, please don't set anything. |
 | artifactRoot.azureBlob.storageAccount | string | `""` | Azure storage account name |
+| artifactRoot.gcs | object | `{"bucket":"","enabled":false,"path":""}` | Specifies if you want to use Google Cloud Storage Mlflow Artifact Root |
 | artifactRoot.gcs.bucket | string | `""` | Google Cloud Storage bucket name |
 | artifactRoot.gcs.enabled | bool | `false` | Specifies if you want to use Google Cloud Storage Mlflow Artifact Root |
 | artifactRoot.gcs.path | string | `""` | Google Cloud Storage bucket folder. If you want to use root level, please don't set anything. |
 | artifactRoot.proxiedArtifactStorage | bool | `false` | Specifies if you want to enable proxied artifact storage access |
+| artifactRoot.s3 | object | `{"awsAccessKeyId":"","awsSecretAccessKey":"","bucket":"","enabled":false,"path":""}` | Specifies if you want to use AWS S3 Mlflow Artifact Root |
 | artifactRoot.s3.awsAccessKeyId | string | `""` | AWS IAM user AWS_ACCESS_KEY_ID which has attached policy for access to the S3 bucket |
 | artifactRoot.s3.awsSecretAccessKey | string | `""` | AWS IAM user AWS_SECRET_ACCESS_KEY which has attached policy for access to the S3 bucket |
 | artifactRoot.s3.bucket | string | `""` | S3 bucket name |
@@ -289,7 +522,7 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | auth.configFile | string | `"basic_auth.ini"` | Mlflow authentication INI file |
 | auth.configPath | string | `"/etc/mlflow/auth/"` | Mlflow authentication INI configuration file path. |
 | auth.defaultPermission | string | `"READ"` | Default permission for all users. More details: https://mlflow.org/docs/latest/auth/index.html#permissions |
-| auth.enabled | bool | `false` | Specifies if you want to enable mlflow authentication |
+| auth.enabled | bool | `false` | Specifies if you want to enable mlflow authentication. auth and ldapAuth can't be enabled at same time. |
 | auth.postgres | object | `{"database":"","driver":"","enabled":false,"host":"","password":"","port":5432,"user":""}` | PostgreSQL based centrilised authentication database |
 | auth.postgres.database | string | `""` | mlflow authorization database name created before in the postgres instance |
 | auth.postgres.driver | string | `""` | postgres database connection driver. e.g.: "psycopg2" |
@@ -300,9 +533,19 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | auth.postgres.user | string | `""` | postgres database user name which can access to mlflow authorization database |
 | auth.sqliteFile | string | `"basic_auth.db"` | SQLite database file |
 | auth.sqliteFullPath | string | `""` | SQLite database folder. Default is user home directory. |
-| backendStore | object | `{"databaseConnectionCheck":false,"databaseMigration":false,"mysql":{"database":"","driver":"pymysql","enabled":false,"host":"","password":"","port":3306,"user":""},"postgres":{"database":"","driver":"","enabled":false,"host":"","password":"","port":5432,"user":""}}` | Mlflow database connection settings |
+| autoscaling | object | `{"behavior":{},"enabled":false,"maxReplicas":5,"metrics":[{"resource":{"name":"memory","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"},{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}],"minReplicas":1}` | Autoscaling settings. Can be enabled only when backendStore is not sqlite and artifactRoot is one of blob storage systems. |
+| autoscaling.behavior | object | `{}` | The behavior of the autoscaler. Only supported on K8s 1.18.0 or later. |
+| autoscaling.enabled | bool | `false` | If true, the number of replicas will be automatically scaled based on default metrics. On default, it will scale based on CPU and memory. For more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/" |
+| autoscaling.maxReplicas | int | `5` | The maximum number of replicas. |
+| autoscaling.metrics | list | `[{"resource":{"name":"memory","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"},{"resource":{"name":"cpu","target":{"averageUtilization":80,"type":"Utilization"}},"type":"Resource"}]` | The metrics to use for autoscaling. |
+| autoscaling.minReplicas | int | `1` | The minimum number of replicas. |
+| backendStore | object | `{"databaseConnectionCheck":false,"databaseMigration":false,"existingDatabaseSecret":{"name":"","passwordKey":"password","usernameKey":"username"},"mysql":{"database":"","driver":"pymysql","enabled":false,"host":"","password":"","port":3306,"user":""},"postgres":{"database":"","driver":"","enabled":false,"host":"","password":"","port":5432,"user":""}}` | Mlflow database connection settings |
 | backendStore.databaseConnectionCheck | bool | `false` | Add an additional init container, which checks for database availability |
 | backendStore.databaseMigration | bool | `false` | Specifies if you want to run database migration |
+| backendStore.existingDatabaseSecret | object | `{"name":"","passwordKey":"password","usernameKey":"username"}` | Specifies if you want to use an existing database secret. |
+| backendStore.existingDatabaseSecret.name | string | `""` | The name of the existing database secret. |
+| backendStore.existingDatabaseSecret.passwordKey | string | `"password"` | The key of the password in the existing database secret. |
+| backendStore.existingDatabaseSecret.usernameKey | string | `"username"` | The key of the username in the existing database secret. |
 | backendStore.mysql.database | string | `""` | mlflow database name created before in the mysql instance |
 | backendStore.mysql.driver | string | `"pymysql"` | mysql database connection driver. e.g.: "pymysql" |
 | backendStore.mysql.enabled | bool | `false` | Specifies if you want to use mysql backend storage |
@@ -324,6 +567,7 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | extraSecretNamesForEnvFrom | list | `[]` | Extra secrets for environment variables |
 | extraVolumeMounts | list | `[]` | Extra Volume Mounts for the mlflow container |
 | extraVolumes | list | `[]` | Extra Volumes for the pod |
+| flaskServerSecretKey | string | `""` | Mlflow Flask Server Secret Key. Default: Will be auto generated. |
 | fullnameOverride | string | `""` | String to override the default generated fullname |
 | image.pullPolicy | string | `"IfNotPresent"` | The docker image pull policy |
 | image.repository | string | `"burakince/mlflow"` | The docker image repository to use |
@@ -337,11 +581,29 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | ingress.hosts[0].paths[0].pathType | string | `"ImplementationSpecific"` | Ingress path type |
 | ingress.tls | list | `[]` | Ingress tls configuration for https access |
 | initContainers | list | `[]` | Init Containers for Mlflow Pod |
+| ldapAuth | object | `{"adminGroupDistinguishedName":"","enabled":false,"encodedTrustedCACertificate":"","externalSecretForTrustedCACertificate":"","groupAttribute":"dn","lookupBind":"","searchBaseDistinguishedName":"","searchFilter":"(&(objectclass=groupOfUniqueNames)(uniquemember=%s))","tlsVerification":"required","uri":"","userGroupDistinguishedName":""}` | Basic Authentication with LDAP backend |
+| ldapAuth.adminGroupDistinguishedName | string | `""` | LDAP DN for the admin group. e.g.: "cn=test-admin,ou=groups,dc=mlflow,dc=test" |
+| ldapAuth.enabled | bool | `false` | Specifies if you want to enable mlflow LDAP authentication. auth and ldapAuth can't be enabled at same time. |
+| ldapAuth.encodedTrustedCACertificate | string | `""` | Base64 encoded trusted CA certificate for LDAP server connection. |
+| ldapAuth.externalSecretForTrustedCACertificate | string | `""` | External secret name for trusted CA certificate for LDAP server connection. |
+| ldapAuth.groupAttribute | string | `"dn"` | LDAP group attribute. |
+| ldapAuth.lookupBind | string | `""` | LDAP Loopup Bind. e.g.: "uid=%s,ou=people,dc=mlflow,dc=test" |
+| ldapAuth.searchBaseDistinguishedName | string | `""` | LDAP base DN for the search. e.g.: "ou=groups,dc=mlflow,dc=test" |
+| ldapAuth.searchFilter | string | `"(&(objectclass=groupOfUniqueNames)(uniquemember=%s))"` | LDAP query filter for search |
+| ldapAuth.tlsVerification | string | `"required"` | TLS verification mode. Options: required, optional, none |
+| ldapAuth.uri | string | `""` | LDAP URI. e.g.: "ldap://lldap:3890/dc=mlflow,dc=test" |
+| ldapAuth.userGroupDistinguishedName | string | `""` | LDAP DN for the user group. e.g.: "cn=test-user,ou=groups,dc=mlflow,dc=test" |
 | livenessProbe | object | `{"failureThreshold":5,"initialDelaySeconds":10,"periodSeconds":30,"timeoutSeconds":3}` | Liveness probe configurations. Please look to [here](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#configure-probes). |
+| mysql | object | `{"architecture":"standalone","auth":{"database":"mlflow","password":"","username":""},"enabled":false,"primary":{"persistence":{"enabled":true,"existingClaim":""},"service":{"ports":{"mysql":3306}}}}` | Bitnami MySQL configuration. For more information checkout: https://github.com/bitnami/charts/tree/main/bitnami/mysql |
+| mysql.auth.database | string | `"mlflow"` | The name of the MySQL database. |
+| mysql.enabled | bool | `false` | Enable mysql |
 | nameOverride | string | `""` | String to override the default generated name |
 | nodeSelector | object | `{}` | For more information checkout: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#nodeselector |
 | podAnnotations | object | `{}` | Annotations for the pod |
 | podSecurityContext | object | `{}` | This is for setting Security Context to a Pod. For more information checkout: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/ |
+| postgresql | object | `{"architecture":"standalone","auth":{"database":"mlflow","password":"","username":""},"enabled":false,"primary":{"persistence":{"enabled":true,"existingClaim":""},"service":{"ports":{"postgresql":5432}}}}` | Bitnami PostgreSQL configuration. For more information checkout: https://github.com/bitnami/charts/tree/main/bitnami/postgresql |
+| postgresql.auth.database | string | `"mlflow"` | The name of the PostgreSQL database. |
+| postgresql.enabled | bool | `false` | Enable postgresql |
 | readinessProbe | object | `{"failureThreshold":5,"initialDelaySeconds":10,"periodSeconds":30,"timeoutSeconds":3}` | Readiness probe configurations. Please look to [here](https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-startup-probes/#configure-probes). |
 | replicaCount | int | `1` | Numbers of replicas |
 | resources | object | `{}` | This block is for setting up the resource management for the pod more information can be found here: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/ |
@@ -351,18 +613,18 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 | service.name | string | `"http"` | Default Service name |
 | service.port | int | `5000` | This sets the ports more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#field-spec-ports |
 | service.type | string | `"ClusterIP"` | This sets the service type more information can be found here: https://kubernetes.io/docs/concepts/services-networking/service/#publishing-services-service-types |
-| serviceAccount.annotations | object | `{}` | Annotations to add to the service account. AWS EKS users can assign role arn from here. Please find more information from here: https://docs.aws.amazon.com/eks/latest/userguide/specify-service-account-role.html |
+| serviceAccount.annotations | object | `{}` | Annotations to add to the service account. AWS EKS users can assign role arn from here. Please find more information from here: https://docs.aws.amazon.com/eks/latest/userguide/associate-service-account-role.html |
 | serviceAccount.automount | bool | `true` | Automatically mount a ServiceAccount's API credentials? |
 | serviceAccount.create | bool | `true` | Specifies whether a ServiceAccount should be created |
 | serviceAccount.name | string | `""` | The name of the ServiceAccount to use. If not set and create is true, a name is generated using the fullname template |
 | serviceMonitor.enabled | bool | `false` | When set true then use a ServiceMonitor to configure scraping |
 | serviceMonitor.interval | string | `"30s"` | Set how frequently Prometheus should scrape |
 | serviceMonitor.labels | object | `{"release":"prometheus"}` | Set labels for the ServiceMonitor, use this to define your scrape label for Prometheus Operator |
-| serviceMonitor.labels.release | string | `"prometheus"` | default `kube prometheus stack` helm chart serviceMonitor selector label Mostly it's your prometheus helm release name. Please find more information from here: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/troubleshooting.md#troubleshooting-servicemonitor-changes |
+| serviceMonitor.labels.release | string | `"prometheus"` | default `kube prometheus stack` helm chart serviceMonitor selector label Mostly it's your prometheus helm release name. Please find more information from here: https://github.com/prometheus-operator/prometheus-operator/blob/main/Documentation/platform/troubleshooting.md#troubleshooting-servicemonitor-changes |
 | serviceMonitor.metricRelabelings | list | `[]` | Set of rules to relabel your exist metric labels |
 | serviceMonitor.namespace | string | `"monitoring"` | Set the namespace the ServiceMonitor should be deployed |
 | serviceMonitor.targetLabels | list | `[]` | Set of labels to transfer on the Kubernetes Service onto the target. |
-| serviceMonitor.telemetryPath | string | `"/metrics"` | Set path to mlflow telemtery-path |
+| serviceMonitor.telemetryPath | string | `"/metrics"` | Set path to mlflow telemetry-path |
 | serviceMonitor.timeout | string | `"10s"` | Set timeout for scrape |
 | serviceMonitor.useServicePort | bool | `false` | When set true then use a service port. On default use a pod port. |
 | strategy | object | `{"rollingUpdate":{"maxSurge":"100%","maxUnavailable":0},"type":"RollingUpdate"}` | This will set the deployment strategy more information can be found here: https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy |
@@ -378,10 +640,10 @@ helm upgrade [RELEASE_NAME] community-charts/mlflow
 
 ## Chart Development
 
-Please install unittest helm plugin with `helm plugin install https://github.com/helm-unittest/helm-unittest` command and use following command to run helm unit tests.
+Please install unittest helm plugin with `helm plugin install https://github.com/helm-unittest/helm-unittest.git` command and use following command to run helm unit tests.
 
 ```console
-helm unittest --strict --file unittests/**/*.yaml charts/mlflow
+helm unittest --strict --file 'unittests/**/*.yaml' charts/mlflow
 ```
 
 ## Maintainers

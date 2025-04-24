@@ -67,3 +67,31 @@ Create the name of the service account to use
 {{- $basPath := default "/" .Values.extraArgs.staticPrefix }}
 {{- printf "%s/health" ($basPath | trimSuffix "/" )}}
 {{- end }}
+
+{{/*
+Generate random hex similar to `openssl rand -hex 16` command.
+Usage: {{ include "mlflow.generateRandomHex" 32 }}
+*/}}
+{{- define "mlflow.generateRandomHex" -}}
+{{- $length := . -}}
+{{- $chars := list "0" "1" "2" "3" "4" "5" "6" "7" "8" "9" "a" "b" "c" "d" "e" "f" -}}
+{{- $result := "" -}}
+{{- range $i := until $length -}}
+  {{- $result = print $result (index $chars (randInt 0 16)) -}}
+{{- end -}}
+{{- $result -}}
+{{- end -}}
+
+{{/*
+Create postgresql name secret name.
+*/}}
+{{- define "mlflow.postgresql.fullname" -}}
+{{- printf "%s-postgresql" (include "mlflow.fullname" .) | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{/*
+Create mysql name secret name.
+*/}}
+{{- define "mlflow.mysql.fullname" -}}
+{{- printf "%s-mysql" (include "mlflow.fullname" .) | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
