@@ -1,4 +1,5 @@
 import os
+import yaml
 
 from kubernetes import client, config
 from kubernetes.client.rest import ApiException
@@ -14,24 +15,28 @@ def init_kube_config():
     config.load_incluster_config()
 
 def apply_sheldon_from_file(namespace : str):
-    template_data = {"experiment_id": run_id, "model_name": model_name, "model_coordinates": model_container_location, "ingress_host": ingress_host}
+    template_data = { "experiment_id": run_id, 
+                     "model_name": model_name, 
+                     "model_coordinates": model_container_location, 
+                     "ingress_host": ingress_host, 
+                     "namespace" : namespace }
     seldon_template = Template(open("SeldonDeploy.yaml").read())
     rendered_template = seldon_template.render(template_data)
+    template_to_yaml = yaml.safe_load(rendered_template)
 
     api_instance = client.CustomObjectsApi()
 
     group = "machinelearning.seldon.io"
     version = "v1"
     plural = "seldondeployments"
-    name = f"{model_name}-predictor"
+    name = f"model-{run_id}"
 
     try:
-        api_instance.get_namespaced_custom_object(group=group, version=version, plural=plural, name=name, namespace=namespace)
-
-        api_instance.patch_cluster_custom_object(group=group, version=version, plural=plural, name=name, body=rendered_template)
+        api_instance.create_namespaced_custom_object(group=group, version=version, plural=plural, namespace=namespace, body=template_to_yaml)                                                    
     except ApiException as e:
-        if e.status == 404:
-            api_instance.create_namespaced_custom_object(group=group, version=version, plural=plural, name=name, body=rendered_template)
+        if e.status == 409:
+            api_instance.patch_namespaced_custom_object(group=group, version=version, plural=plural, 
+                                                name=name, namespace=namespace, body=template_to_yaml)
         else:
             print(f"Error applying SeldonDeployment: {e}")
             raise
@@ -42,7 +47,6 @@ def apply_ingress(namespace : str):
     api_instance = client.NetworkingV1Api()
 
     # Ingress 객체 정의
-    client.V1Ingress
     ingress = client.V1Ingress(
         api_version="networking.k8s.io/v1",
         kind="Ingress",
@@ -86,19 +90,17 @@ def apply_ingress(namespace : str):
     )
   
     try:
-        # 먼저 Ingress가 존재하는지 확인
-        api_instance.read_namespaced_ingress(name="sheldon-ingress", namespace=namespace)
         # 존재한다면 업데이트
-        api_instance.patch_namespaced_ingress(
-            name="sheldon-ingress",
+        api_instance.create_namespaced_ingress(
             namespace=namespace,
             body=ingress
         )
         print(f"Ingress updated in namespace {namespace}")
     except ApiException as e:
-        if e.status == 404:
+        if e.status == 409:
             # 존재하지 않으면 생성
-            api_instance.create_namespaced_ingress(
+            api_instance.patch_namespaced_ingress(
+                name="sheldon-ingress",
                 namespace=namespace,
                 body=ingress
             )
@@ -109,7 +111,6 @@ def apply_ingress(namespace : str):
 # 사용 예시
 if __name__ == "__main__":
     namespace = "default"
+    init_kube_config()
     apply_sheldon_from_file(namespace)
     apply_ingress(namespace)
-
-    

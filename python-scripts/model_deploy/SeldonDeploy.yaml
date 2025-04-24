@@ -4,6 +4,7 @@ metadata:
   labels:
     app: seldon
   name: model-{{  experiment_id }}
+  namespace: {{ namespace }}
 spec:
   annotations:
     project_name: {{  model_name }}

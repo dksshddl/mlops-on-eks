@@ -1,0 +1,33 @@
+#k auth can-i get seldondeployments --as=system:serviceaccount:airflow:default -n airflow
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  # "namespace" omitted since ClusterRoles are not namespaced
+  name: airflow-seldondeployment-clusterrole
+rules:
+- apiGroups: ["machinelearning.seldon.io"]
+  #
+  # at the HTTP level, the name of the resource for accessing Secret
+  # objects is "secrets"
+  resources: ["seldondeployments"]
+  verbs: ["*"]
+- apiGroups: ["networking.k8s.io"]
+  #
+  # at the HTTP level, the name of the resource for accessing Secret
+  # objects is "secrets"
+  resources: ["ingresses"]
+  verbs: ["*"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+# This cluster role binding allows anyone in the "manager" group to read secrets in any namespace.
+kind: ClusterRoleBinding
+metadata:
+  name: airflow-seldondeployment-clusterrole-binding
+subjects:
+- kind: ServiceAccount
+  name: default
+  namespace: airflow
+roleRef:
+  kind: ClusterRole
+  name: airflow-seldondeployment-clusterrole
+  apiGroup: rbac.authorization.k8s.io
