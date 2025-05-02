@@ -46,6 +46,8 @@ dag에 python 파일이 추가되는데, dependency는 어디를 물고있는지
 
 6. jupyter pod는  "automountServiceAccountToken: false" 로 kubeapi-access가 안들어감.
 
+--> kubespawner가 jupyter notebook을 만드는데 default sa인 경우 kube-api-access 안넣음
+c.KubeSpawner.automount_service_account_token = True 으로 default sa일때도 명시적으로 넣을 수 있음
 
 ➜ k get pod -n airflow model-deploy-jftwximu -oyaml
 apiVersion: v1
@@ -223,3 +225,14 @@ status:
   - ip: 10.0.175.70
   qosClass: BestEffort
   startTime: "2025-04-23T06:20:10Z"
+
+
+7. spark
+Labels:           spark-app-name=spark
+                  spark-app-selector=spark-3ca0c455fb86443b8999ecc8e28e179c
+                  spark-exec-id=1
+                  spark-exec-resourceprofile-id=0
+                  spark-role=executor
+                  spark-version=4.0.0-preview2
+
+client mode시, jupyter notebook이 driver 역할을해서 Executor를 생성
