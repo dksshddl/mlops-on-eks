@@ -1,0 +1,33 @@
+apiVersion: karpenter.sh/v1
+kind: NodePool
+metadata:
+  name: spark-worker-pool
+spec:
+  template:
+    metadata:
+      labels:
+        type: spark-worker
+    spec:
+      taints:
+      - key: type
+        value: spark-worker
+        effect: NoSchedule
+
+      nodeClassRef:
+        group: eks.amazonaws.com
+        kind: NodeClass
+        name: default
+      requirements:
+        - key: "eks.amazonaws.com/instance-category"
+          operator: In
+          values: ["c", "m", "r"]
+        - key: "eks.amazonaws.com/instance-cpu"
+          operator: In
+          values: ["2", "4", "8", "16", "32"]
+        - key: "kubernetes.io/arch"
+          operator: In
+          values: ["amd64"]
+    
+  limits:
+    cpu: "1000"
+    memory: 1000Gi

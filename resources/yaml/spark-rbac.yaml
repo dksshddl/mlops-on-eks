@@ -1,0 +1,89 @@
+# spark-rbac.yaml
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: spark
+  namespace: default  # 또는 원하는 namespace
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: spark-role
+  namespace: default  # 또는 원하는 namespace
+rules:
+# Pod 관련 권한
+- apiGroups: [""]
+  resources: ["pods", "pods/exec", "pods/log"]
+  verbs: ["get", "list", "watch", "create", "delete", "patch"]
+
+# Service 관련 권한
+- apiGroups: [""]
+  resources: ["services"]
+  verbs: ["get", "list", "watch", "create", "delete"]
+
+# ConfigMap 관련 권한
+- apiGroups: [""]
+  resources: ["configmaps"]
+  verbs: ["get", "list", "watch", "create", "delete", "update"]
+
+# Secret 관련 권한
+- apiGroups: [""]
+  resources: ["secrets"]
+  verbs: ["get", "list", "watch"]
+
+# Event 관련 권한
+- apiGroups: [""]
+  resources: ["events"]
+  verbs: ["create", "patch"]
+
+# Spark Application 관련 권한 (있는 경우)
+- apiGroups: ["sparkoperator.k8s.io"]
+  resources: ["sparkapplications", "scheduledsparkapplications"]
+  verbs: ["get", "list", "watch", "create", "delete", "patch"]
+
+# Node 정보 조회 권한
+- apiGroups: [""]
+  resources: ["nodes"]
+  verbs: ["get", "list", "watch"]
+
+# ResourceQuota 및 LimitRange 조회 권한
+- apiGroups: [""]
+  resources: ["resourcequotas", "limitranges"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: spark-role-binding
+  namespace: default # 또는 원하는 namespace
+subjects:
+- kind: ServiceAccount
+  name: spark
+  namespace: default  # 또는 원하는 namespace
+roleRef:
+  kind: Role
+  name: spark-role
+  apiGroup: rbac.authorization.k8s.io
+---
+# 필요한 경우 ClusterRole 및 ClusterRoleBinding 추가
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: spark-cluster-role
+rules:
+- apiGroups: [""]
+  resources: ["nodes"]
+  verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: spark-cluster-role-binding
+subjects:
+- kind: ServiceAccount
+  name: spark
+  namespace: default  # 또는 원하는 namespace
+roleRef:
+  kind: ClusterRole
+  name: spark-cluster-role
+  apiGroup: rbac.authorization.k8s.io
